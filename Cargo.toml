@@ -1,0 +1,21 @@
+[package]
+name = "forkme"
+version = "0.1.0"
+authors = ["Ivan Velichko <iximiuz@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+libc = "0.2"
+nix = "0.15.0"
+
+[[bin]]
+name = "sleep"
+path = "src/sleep.rs"
+
+[[bin]]
+name = "echo"
+path = "src/echo.rs"
+
+[[bin]]
+name = "fork"
+path = "src/fork.rs"
