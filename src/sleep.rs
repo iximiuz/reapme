@@ -20,10 +20,8 @@ fn main() {
         SaFlags::empty(),
         SigSet::empty(),
     );
-    
-    if let Err(err) = unsafe {
-        sigaction(SIGUSR1, &sig_action)
-    } {
+
+    if let Err(err) = unsafe { sigaction(SIGUSR1, &sig_action) } {
         println!("sigaction() failed: {}", err);
     };
 
