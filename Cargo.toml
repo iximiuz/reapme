@@ -9,13 +9,25 @@ libc = "0.2"
 nix = "0.15.0"
 
 [[bin]]
-name = "sleep"
-path = "src/sleep.rs"
+name = "wait_block"
+path = "src/wait_block.rs"
 
 [[bin]]
-name = "echo"
-path = "src/echo.rs"
+name = "wait_busy"
+path = "src/wait_busy.rs"
 
 [[bin]]
-name = "fork"
-path = "src/fork.rs"
+name = "wait_signal"
+path = "src/wait_signal.rs"
+
+[[bin]]
+name = "subreaper"
+path = "src/subreaper.rs"
+
+[[bin]]
+name = "combined"
+path = "src/combined.rs"
+
+[[bin]]
+name = "sleepy"
+path = "src/sleepy.rs"
