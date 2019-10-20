@@ -1,12 +1,13 @@
+use std::ffi::{c_void};
 use std::thread;
 use std::time::Duration;
 
-use libc::{prctl, PR_SET_PDEATHSIG};
+use libc::{prctl, PR_SET_PDEATHSIG, STDOUT_FILENO, write};
 use nix::sys::signal::{sigaction, SaFlags, SigAction, SigHandler, SigSet, SIGUSR1};
 use nix::unistd::{getpid, getppid, Pid};
 
-extern "C" fn handle_sigint(_: libc::c_int) {
-    println!("[sleepy] Parent died!");
+extern "C" fn handle_sigusr1(_: libc::c_int) {
+    print_signal_safe("[sleepy] Parent died!\n");
 }
 
 fn main() {
@@ -17,7 +18,7 @@ fn main() {
     }
 
     let sig_action = SigAction::new(
-        SigHandler::Handler(handle_sigint),
+        SigHandler::Handler(handle_sigusr1),
         SaFlags::empty(),
         SigSet::empty(),
     );
@@ -37,4 +38,10 @@ fn main() {
     }
 
     println!("[sleepy] Bye Bye!");
+}
+
+fn print_signal_safe(s: &str) {
+    unsafe {
+        write(STDOUT_FILENO, s.as_ptr() as (* const c_void), s.len());
+    }
 }

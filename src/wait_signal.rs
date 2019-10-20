@@ -1,19 +1,26 @@
+use std::ffi::{c_void};
 use std::process::exit;
 use std::thread::sleep;
 use std::time::Duration;
 
+use libc::{_exit, STDOUT_FILENO, write};
 use nix::sys::signal::{sigaction, SaFlags, SigAction, SigHandler, SigSet, SIGCHLD};
 use nix::sys::wait::waitpid;
 use nix::unistd::{fork, getpid, getppid, ForkResult, Pid};
 
 extern "C" fn handle_sigchld(_: libc::c_int) {
-    println!("[main] What a surprise! Got SIGCHLD!");
+    print_signal_safe("[main] What a surprise! Got SIGCHLD!\n");
     match waitpid(Pid::from_raw(-1), None) {
-        Ok(status) => println!("[main] Child exited with status {:?}", status),
-        Err(err) => panic!("[main] waitpid() failed: {}", err),
+        Ok(_) => {
+            print_signal_safe("[main] Child exited.\n");
+            print_signal_safe("[main] Bye Bye!\n");
+            exit_signal_safe(0);
+        }
+        Err(_) => {
+            print_signal_safe("[main] waitpid() failed.\n");
+            exit_signal_safe(1);
+        }
     }
-    println!("[main] Bye Bye!");
-    exit(0);
 }
 
 fn main() {
@@ -59,5 +66,17 @@ fn main() {
         println!("[main] Do my own stuff.");
         // ... replace sleep with the payload
         sleep(Duration::from_millis(500));
+    }
+}
+
+fn print_signal_safe(s: &str) {
+    unsafe {
+        write(STDOUT_FILENO, s.as_ptr() as (* const c_void), s.len());
+    }
+}
+
+fn exit_signal_safe(status: i32) {
+    unsafe {
+        _exit(status);
     }
 }
