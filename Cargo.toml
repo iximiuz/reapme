@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 libc = "0.2"
-nix = "0.15.0"
+nix = "0.20.2"
 
 [[bin]]
 name = "wait_block"
