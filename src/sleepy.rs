@@ -1,8 +1,8 @@
-use std::ffi::{c_void};
+use std::ffi::c_void;
 use std::thread;
 use std::time::Duration;
 
-use libc::{prctl, PR_SET_PDEATHSIG, STDOUT_FILENO, write};
+use libc::{prctl, write, PR_SET_PDEATHSIG, STDOUT_FILENO};
 use nix::sys::signal::{sigaction, SaFlags, SigAction, SigHandler, SigSet, SIGUSR1};
 use nix::unistd::{getpid, getppid, Pid};
 
@@ -42,6 +42,6 @@ fn main() {
 
 fn print_signal_safe(s: &str) {
     unsafe {
-        write(STDOUT_FILENO, s.as_ptr() as (* const c_void), s.len());
+        write(STDOUT_FILENO, s.as_ptr() as (*const c_void), s.len());
     }
 }

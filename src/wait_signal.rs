@@ -1,9 +1,9 @@
-use std::ffi::{c_void};
+use std::ffi::c_void;
 use std::process::exit;
 use std::thread::sleep;
 use std::time::Duration;
 
-use libc::{_exit, STDOUT_FILENO, write};
+use libc::{_exit, write, STDOUT_FILENO};
 use nix::sys::signal::{sigaction, SaFlags, SigAction, SigHandler, SigSet, SIGCHLD};
 use nix::sys::wait::waitpid;
 use nix::unistd::{fork, getpid, getppid, ForkResult, Pid};
@@ -26,7 +26,7 @@ extern "C" fn handle_sigchld(_: libc::c_int) {
 fn main() {
     println!("[main] Hi there! My PID is {}.", getpid());
 
-    match fork() {
+    match unsafe { fork() } {
         Ok(ForkResult::Child) => {
             //////////////////////
             //      child       //
@@ -71,7 +71,7 @@ fn main() {
 
 fn print_signal_safe(s: &str) {
     unsafe {
-        write(STDOUT_FILENO, s.as_ptr() as (* const c_void), s.len());
+        write(STDOUT_FILENO, s.as_ptr() as (*const c_void), s.len());
     }
 }
 

@@ -1,10 +1,10 @@
-use std::process::{exit};
-use std::thread::{sleep};
+use std::process::exit;
+use std::thread::sleep;
 use std::time::Duration;
 
 use libc::{prctl, PR_SET_CHILD_SUBREAPER};
 use nix::sys::wait::waitpid;
-use nix::unistd::{fork, ForkResult, getpid, getppid, Pid};
+use nix::unistd::{fork, getpid, getppid, ForkResult, Pid};
 
 fn main() {
     println!("[main] Hi there! My PID is {}.", getpid());
@@ -13,20 +13,28 @@ fn main() {
         prctl(PR_SET_CHILD_SUBREAPER, 1, 0, 0, 0);
     }
 
-    match fork() {
+    match unsafe { fork() } {
         Ok(ForkResult::Child) => {
             //////////////////////
             //      child 1     //
             //////////////////////
-            println!("[child 1] I'm alive! My PID is {} and PPID is {}.", getpid(), getppid());
+            println!(
+                "[child 1] I'm alive! My PID is {} and PPID is {}.",
+                getpid(),
+                getppid()
+            );
 
-            match fork() {
+            match unsafe { fork() } {
                 Ok(ForkResult::Child) => {
                     //////////////////////
                     //      child 2     //
                     //////////////////////
                     for _ in 0..6 {
-                        println!("[child 2] I'm alive! My PID is {} and PPID is {}.", getpid(), getppid());
+                        println!(
+                            "[child 2] I'm alive! My PID is {} and PPID is {}.",
+                            getpid(),
+                            getppid()
+                        );
                         sleep(Duration::from_millis(500));
                     }
                     println!("[child 2] Bye Bye");
@@ -59,11 +67,10 @@ fn main() {
     }
 
     println!("[main] I'll be waiting for the grandchild termination as well...");
-    sleep(Duration::from_millis(500));  // just in case
+    sleep(Duration::from_millis(500)); // just in case
     match waitpid(Pid::from_raw(-1), None) {
         Ok(status) => println!("[main] Grandchild exited with status {:?}", status),
         Err(err) => println!("[main] waitpid() failed: {}", err),
     }
     println!("[main] Bye Bye!");
 }
-

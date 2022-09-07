@@ -8,7 +8,7 @@ use nix::unistd::{fork, getpid, getppid, ForkResult};
 fn main() {
     println!("[main] Hi there! My PID is {}.", getpid());
 
-    let child_pid = match fork() {
+    let child_pid = match unsafe { fork() } {
         Ok(ForkResult::Child) => {
             //////////////////////
             //      child       //

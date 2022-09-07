@@ -1,11 +1,11 @@
 use std::ffi::CString;
-use std::process::{exit};
-use std::thread::{sleep};
+use std::process::exit;
+use std::thread::sleep;
 use std::time::Duration;
 
 use libc::{prctl, PR_SET_CHILD_SUBREAPER};
 use nix::sys::wait::waitpid;
-use nix::unistd::{execv, fork, ForkResult, getpid, getppid, Pid};
+use nix::unistd::{execv, fork, getpid, getppid, ForkResult, Pid};
 
 fn main() {
     println!("[main] Hi there! My pid is {}", getpid());
@@ -14,7 +14,7 @@ fn main() {
         prctl(PR_SET_CHILD_SUBREAPER, 1, 0, 0, 0);
     }
 
-    match fork() {
+    match unsafe { fork() } {
         Ok(ForkResult::Parent { child, .. }) => {
             println!("[main] Forked new child with pid {}", child);
         }
@@ -22,14 +22,22 @@ fn main() {
             //////////////////////
             //      child 1     //
             //////////////////////
-            println!("[child 1] I'm alive! My PID is {} and PPID is {}.", getpid(), getppid());
+            println!(
+                "[child 1] I'm alive! My PID is {} and PPID is {}.",
+                getpid(),
+                getppid()
+            );
 
-            match fork() {
+            match unsafe { fork() } {
                 Ok(ForkResult::Child) => {
                     //////////////////////
                     //      child 2     //
                     //////////////////////
-                    println!("[child 2] I'm alive! My PID is {} and PPID is {}.", getpid(), getppid());
+                    println!(
+                        "[child 2] I'm alive! My PID is {} and PPID is {}.",
+                        getpid(),
+                        getppid()
+                    );
                     println!("[child 2] Exec-ing...");
                     exec_or_die("target/debug/sleepy");
                 }
